@@ -46,8 +46,11 @@ typedef struct r_io_t {
 	int cached;
 	int cached_read;
 	ut32 map_id;
+	ut32 sec_id;
 	SdbList *freed_map_ids;
+	SdbList *freed_sec_ids;
 	SdbList *maps;
+	SdbList *sections;
 	RList *cache;	//sdblist?
 	Sdb *files;
 	RIOUndo undo;
@@ -97,6 +100,20 @@ typedef struct r_io_map_t {
 	ut64 delta;
 	char *name;
 } RIOMap;
+
+typedef struct r_io_section_t {
+	char *name;
+	ut64 addr;
+	ut64 size;
+	ut64 vaddr;
+	ut64 vsize;
+	int rwx;
+	ut32 id;
+	ut32 bin_id;
+	int arch;
+	int bits;
+	int fd;
+} RIOSection:
 
 typedef struct r_io_cache_t {
 	ut64 from;
@@ -192,5 +209,11 @@ R_API int r_io_cache_list(RIO *io, int rad);
 R_API void r_io_cache_reset(RIO *io, int set);
 R_API int r_io_cache_write(RIO *io, ut64 addr, const ut8 *buf, int len);
 R_API int r_io_cache_read(RIO *io, ut64 addr, ut8 *buf, int len);
+
+/* io/section.c */
+R_API void r_io_section_init (RIO *io);
+R_API void r_io_section_fini (RIO *io);
+R_API int r_io_section_exists_for_id (RIO *io, ut32 id);
+
 
 #endif
