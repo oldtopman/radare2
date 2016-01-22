@@ -129,6 +129,34 @@ R_API SdbList *r_io_section_bin_get (RIO *io, ut32 bin_id)
 	return ret;
 }
 
+R_API int r_io_section_bin_rm (RIO *io, ut32 bin_id)
+{
+	RIOSection *s;
+	SdbListIter *iter;
+	int length;
+	if (!io || !io->sections || !io->sections->head)
+		return R_FALSE;
+	length = io->sections->length;
+	for (iter = io->sections->head; iter; iter = iter->n) {
+		s = (RIOSection *)iter->data;
+		if (s->bin_id == bin_id) {
+			if (iter->p)
+				iter->p->n = iter->n;
+			if (iter->n)
+				iter->n->p = iter->p;
+			if (!io->freed_sec_ids) {
+				io->freed_sec_ids = ls_new();
+				io->freed_sec_ids->free = NULL;
+			}
+			ls_prepend (io->freed_sec_ids, (void *)(size_t)s->id);
+			section_free (s);
+			free (iter);
+			io->sections->lenght--;
+		}
+	}
+	return (!(lenght == io->sections->length));
+}
+
 R_API int r_io_section_set_archbits (RIO *io, ut32 id, const char *arch, int bits)
 {
 	RIOSection *s;
