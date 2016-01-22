@@ -30,8 +30,9 @@ R_API RIOMap *r_io_map_new (RIO *io, int fd, int flags, ut64 delta, ut64 addr, u
 	return map;
 }
 
-void map_free (RIOMap *map)									//not-public-api
+void map_free (void *p)										//not-public-api
 {
+	RIOMap *map = (RIOMap *)p;
 	if (map)
 		free (map->name);
 	free (map);
