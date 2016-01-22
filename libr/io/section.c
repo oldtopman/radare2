@@ -78,3 +78,36 @@ R_API RIOSection *r_io_section_add (RIO *io, ut64 addr, ut64 vaddr, ut64 size, u
 	ls_append (io->sections, sec);
 	return sec;
 }
+
+R_API RIOSection *r_io_section_get_i (RIO *io, ut32 id)
+{
+	SdbListIter *iter;
+	RIOSection *s;
+	if (!io || !io->sections)
+		return NULL;
+	ls_foreach (io->sections, iter, s) {
+		if (s->id == id)
+			return s;
+	}
+	return NULL;
+}
+
+R_API int r_io_section_rm (RIO *io, ut32 id)
+{
+	SdbListIter *iter;
+	RIOSection *s;
+	if (!io || !io->sections)
+		return R_FALSE;
+	ls_foreach (io->sections, iter, s) {
+		if (s->id == id) {
+			ls_delete (io->sections, iter);
+			if (!io->freed_sec_ids) {
+				io->freed_sec_ids = ls_new();
+				io->freed_sec_ids->free = NULL;
+			}
+			ls_prepend (io->freed_map_ids, (void *)(size_t)id);
+			return R_TRUE;
+		}
+	}
+	return R_FALSE;
+}

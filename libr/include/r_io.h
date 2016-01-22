@@ -214,6 +214,8 @@ R_API int r_io_cache_read(RIO *io, ut64 addr, ut8 *buf, int len);
 R_API void r_io_section_init (RIO *io);
 R_API void r_io_section_fini (RIO *io);
 R_API int r_io_section_exists_for_id (RIO *io, ut32 id);
-
+R_API RIOSection *r_io_section_add (RIO *io, ut64 addr, ut64 vaddr, ut64 size, ut64 vsize, int rwx, const char *name, ut32 bin_id, int fd);
+R_API RIOSection *r_io_section_get_i (RIO *io, ut32 id);
+R_API int r_io_section_rm (RIO *io, ut32 id);
 
 #endif
