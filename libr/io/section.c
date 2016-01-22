@@ -111,3 +111,62 @@ R_API int r_io_section_rm (RIO *io, ut32 id)
 	}
 	return R_FALSE;
 }
+
+R_API SdbList *r_io_section_bin_get (RIO *io, ut32 bin_id)
+{
+	SdbList *ret = NULL;
+	SdbListIter *iter;
+	RIOSection *s;
+	if (!io || !io->sections)
+		return NULL;
+	ls_foreach (io->sections, iter, s) {
+		if (s->bin_id == bin_id) {
+			if (!ret)
+				ret = ls_new ();
+			ls_prepend (ret, s);
+		}
+	}
+	return ret;
+}
+
+R_API int r_io_section_set_archbits (RIO *io, ut32 id, const char *arch, int bits)
+{
+	RIOSection *s;
+	if (!(s = r_io_section_get_i(io, id)))
+		return R_FALSE;
+	if (arch) {
+		s->arch = r_sys_arch_id (arch);
+		s->bits = bits;
+	} else	s->arch = s->bits = 0;
+	return R_TRUE;
+}
+
+R_API char *r_io_section_get_archbits (RIO *io, ut32 id, int *bits)
+{
+	RIOSection *s;
+	if (!(s = r_io_section_get_i (io, id)) || !s->arch || !s->bits)
+		return NULL;
+	if (bits)
+		*bits = s->bits;
+	return r_sys_arch_str (s->arch);
+}
+
+R_API int r_io_section_bin_set_archbits (RIO *io, ut32 bin_id, const char *arch, int bits)
+{
+	SdbList *bin_sections;
+	SdbListIter *iter;
+	RIOSection *s;
+	int a;
+	if (!(bin_sections = r_io_section_bin_get (io, bin_id)))
+		return R_FALSE;
+	if (!arch)
+		a = bits = 0;
+	else	a = r_sys_arch_id (arch);
+	ls_foreach (bin_sections, iter, s) {
+		s->arch = a;
+		a->bits = s;
+	}
+	bin_sections->free = NULL;		//maybe not needed
+	ls_free (bin_sections);
+	return R_TRUE;
+}
